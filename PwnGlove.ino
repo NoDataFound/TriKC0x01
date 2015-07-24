@@ -116,9 +116,6 @@ void setup() {
   analogReference(DEFAULT);
 }
 void fillnoise8() {
-  // If we're runing at a low "speed", some 8-bit artifacts become visible
-  // from frame-to-frame.  In order to reduce this, we can do some fast data-smoothing.
-  // The amount of data smoothing we're doing depends on "speed".
   uint8_t dataSmoothing = 0;
   if( speed < 50) {
     dataSmoothing = 200 - (speed * 4);
@@ -131,9 +128,7 @@ void fillnoise8() {
       
       uint8_t data = inoise8(x + ioffset,y + joffset,z);
 
-      // The range of the inoise8 function is roughly 16-238.
-      // These two operations expand those values out to roughly 0..255
-      // You can comment them out if you want the raw noise data.
+  
       data = qsub8(data,16);
       data = qadd8(data,scale8(data,39));
 
@@ -149,7 +144,7 @@ void fillnoise8() {
   
   z += speed;
   
-  // apply slow drift to X and Y, just for visual variation.
+
   x += speed / 8;
   y -= speed / 16;
 }
@@ -160,20 +155,16 @@ void mapNoiseToLEDsUsingPalette()
   
   for(int i = 0; i < kMatrixWidth; i++) {
     for(int j = 0; j < kMatrixHeight; j++) {
-      // We use the value at the (i,j) coordinate in the noise
-      // array for our brightness, and the flipped value from (j,i)
-      // for our pixel's index into the color palette.
 
       uint8_t index = noise[j][i];
       uint8_t bri =   noise[i][j];
 
-      // if this palette is a 'loop', add a slowly-changing base value
+
       if( colorLoop) { 
         index += ihue;
       }
 
-      // brighten up, as the color palette itself often contains the 
-      // light/dark dynamic range desired
+    
       if( bri > 127 ) {
         bri = 255;
       } else {
@@ -189,7 +180,7 @@ void mapNoiseToLEDsUsingPalette()
 }
 
 void loop() {
-  // Some example procedures showing how to display to the pixels:
+ 
   colorWipe(strip.Color(255, 0, 0), 50); // Red
   colorWipe(strip.Color(0, 255, 0), 50); // Green
   colorWipe(strip.Color(0, 0, 255), 50); // Blue
@@ -201,8 +192,7 @@ void loop() {
     // generate noise data
   fillnoise8();
   
-  // convert the noise data to colors in the LED array
-  // using the current palette
+
   mapNoiseToLEDsUsingPalette();
 
   LEDS.show();
@@ -285,10 +275,7 @@ unsigned int readButtons()
     (!digitalRead(pinSelect) << 7);
 }
 
-/*
-* Writes the current sensor state to the serial out line. Format is:
-* Dig. Button State - Thumb - Index - Middle - Ring - Accel X - Accel Y - AccelZ
-*/
+
 void writeState()
 {
   // Print output -- 
@@ -332,11 +319,7 @@ void ChangePaletteAndSettingsPeriodically()
   }
 }
 
-// This function generates a random palette that's a gradient
-// between four different colors.  The first is a dim hue, the second is 
-// a bright hue, the third is a bright pastel, and the last is 
-// another bright hue.  This gives some visual bright/dark variation
-// which is more interesting than just a gradient of different hues.
+
 void SetupRandomPalette()
 {
   currentPalette = CRGBPalette16( 
@@ -346,10 +329,6 @@ void SetupRandomPalette()
                       CHSV( random8(), 255, 255)); 
 }
 
-// This function sets up a palette of black and white stripes,
-// using code.  Since the palette is effectively an array of
-// sixteen CRGB colors, the various fill_* functions can be used
-// to set them up.
 void SetupBlackAndWhiteStripedPalette()
 {
   // 'black out' all 16 palette entries...
